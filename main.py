@@ -9,8 +9,9 @@ every run writes byte-identical output.
 import os
 
 LINE = (
-    "Hey \u2014 I've hummed behind this glass all day, and you're the one "
-    "snack in this aisle I can't dispense. Press B4 and stay a while?"
+    "I've hummed behind this glass all day, and you're the only "
+    "snack in this aisle I can't dispense \u2014 press B4 and consider "
+    "yourself sold out."
 )
 
 
@@ -31,6 +32,11 @@ def main() -> None:
     os.makedirs("/output", exist_ok=True)
     with open("/output/entry.txt", "w", encoding="utf-8", newline="\n") as f:
         f.write(entry)
+    # Deterministic self-check: what landed on disk must be byte-identical
+    # to the validated line, so repeated runs can never drift.
+    with open("/output/entry.txt", encoding="utf-8", newline="") as f:
+        if f.read() != entry:
+            raise RuntimeError("entry.txt differs from the validated line")
 
 
 if __name__ == "__main__":
